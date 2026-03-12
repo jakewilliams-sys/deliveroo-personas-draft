@@ -649,6 +649,125 @@ body {
 
 .nav-hint.hidden { opacity: 0; }
 
+/* ---- JUMP NAV ---- */
+.nav-btn {
+  position: fixed;
+  top: 1rem;
+  right: 1.2rem;
+  z-index: 200;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(44,42,37,0.06);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0;
+  transition: background 0.25s;
+}
+.nav-btn:hover { background: rgba(44,42,37,0.12); }
+.nav-btn span {
+  display: block;
+  width: 16px;
+  height: 1.5px;
+  background: var(--text);
+  border-radius: 1px;
+  transition: transform 0.3s var(--ease-out-quart), opacity 0.3s;
+}
+.nav-btn.open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
+.nav-btn.open span:nth-child(2) { opacity: 0; }
+.nav-btn.open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
+
+.nav-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.2);
+  z-index: 190;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s var(--ease-out-quart);
+}
+.nav-overlay.open { opacity: 1; pointer-events: auto; }
+
+.nav-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 280px;
+  max-width: 80vw;
+  height: 100vh;
+  background: var(--bg);
+  z-index: 195;
+  transform: translateX(100%);
+  transition: transform 0.4s var(--ease-out-quart);
+  overflow-y: auto;
+  padding: 4.5rem 1.4rem 2rem;
+  box-shadow: -4px 0 24px rgba(0,0,0,0.08);
+}
+.nav-panel.open { transform: translateX(0); }
+
+.nav-section-label {
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-light);
+  margin: 1.5rem 0 0.4rem;
+  font-weight: 600;
+}
+.nav-section-label:first-child { margin-top: 0; }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: var(--text);
+  transition: background 0.2s;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: var(--sans);
+}
+.nav-item:hover { background: rgba(44,42,37,0.06); }
+.nav-item.active { background: rgba(44,42,37,0.08); font-weight: 600; }
+.nav-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.nav-stage-list {
+  margin: 0 0 0 1.55rem;
+  padding: 0;
+  list-style: none;
+}
+.nav-stage-item {
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.68rem;
+  color: var(--text-mid);
+  transition: background 0.2s, color 0.2s;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: var(--sans);
+  border-left: 2px solid transparent;
+}
+.nav-stage-item:hover { background: rgba(44,42,37,0.04); color: var(--text); }
+.nav-stage-item.active { border-left-color: var(--text-mid); color: var(--text); font-weight: 500; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     transition-duration: 0.01ms !important;
@@ -718,6 +837,11 @@ body {
 <div class="counter" id="counter"></div>
 <div class="nav-hint" id="navHint">Arrow keys or click to navigate</div>
 
+<!-- ========== JUMP NAV ========== -->
+<button class="nav-btn" id="navBtn" aria-label="Open navigation"><span></span><span></span><span></span></button>
+<div class="nav-overlay" id="navOverlay"></div>
+<div class="nav-panel" id="navPanel"></div>
+
 <script>
 (function() {
   var STAGES = ['Trigger', 'Decision', 'Order', 'Wait', 'Meal', 'After'];
@@ -729,14 +853,14 @@ body {
       color: '#1d7775', colorSoft: '#e8f3f3',
       tagline: 'Systematic efficiency meets strategic deal-hunting',
       stats: ['12 participants', 'Orders fortnightly', 'None hold Deliveroo Plus alone'],
-      introQuote: { text: 'Ordering a takeaway after an exam\u2026 that\u2019s an enjoyable meal. It\u2019s like a reward. You\u2019ve earned it.', cite: 'P007' },
+      introQuote: { text: 'Ordering a takeaway after an exam\u2026 that\u2019s an enjoyable meal. It\u2019s like a reward. You\u2019ve earned it.', cite: 'Joshua' },
       stages: [
-        { emotion: 'Comfort', score: 4, context: 'It\u2019s Thursday evening. Lectures are done, the library is closed, and tomorrow\u2019s assignment can wait. The thought of cooking crosses their mind \u2014 and is immediately weighed against the effort.', quote: { text: 'It sort of takes you out from when you\u2019re doing, like, work all day. It\u2019s just something different that you can focus on.', cite: 'P025' } },
-        { emotion: 'Stress', score: 2, context: 'Three apps open. Delivery fees compared. Menu prices cross-referenced. The minimum order threshold means adding a drink they don\u2019t really want to hit \u00a315.', quote: { text: 'I try to make it about \u00a315 to save delivery fees\u2026 it makes some changes in my delivery order.', cite: 'P012' } },
+        { emotion: 'Comfort', score: 4, context: 'It\u2019s Thursday evening. Lectures are done, the library is closed, and tomorrow\u2019s assignment can wait. The thought of cooking crosses their mind \u2014 and is immediately weighed against the effort.', quote: { text: 'It sort of takes you out from when you\u2019re doing, like, work all day. It\u2019s just something different that you can focus on.', cite: 'James' } },
+        { emotion: 'Stress', score: 2, context: 'Three apps open. Delivery fees compared. Menu prices cross-referenced. The minimum order threshold means adding a drink they don\u2019t really want to hit \u00a315.', quote: { text: 'I try to make it about \u00a315 to save delivery fees\u2026 it makes some changes in my delivery order.', cite: 'Suryansh' } },
         { emotion: 'Excitement', score: 5, context: 'The calculation is complete. The order is placed. For a brief moment, the optimisation stops and something simpler takes over: anticipation. The fee was managed. The reward is incoming.', quote: null },
         { emotion: 'Neutral', score: 3, context: 'Twenty-five minutes. Time to do something else. The waiting barely registers \u2014 the emotional work was in the decision, not the delivery.', quote: null, limited: true },
         { emotion: 'Comfort', score: 4, context: 'The food arrives exactly as expected. No surprises, no disappointment. The meal is eaten with quiet satisfaction \u2014 a small, earned reward after a calculated decision.', quote: null },
-        { emotion: 'Excitement', score: 5, context: 'Worth it. The math checked out. The fee was saved. The reward was earned. A productive day capped with a strategic indulgence.', quote: { text: 'Whether that\u2019s through a productive day or I\u2019ve gone on a long hike or something. Where you\u2019ve earned it.', cite: 'P007' } }
+        { emotion: 'Excitement', score: 5, context: 'Worth it. The math checked out. The fee was saved. The reward was earned. A productive day capped with a strategic indulgence.', quote: { text: 'Whether that\u2019s through a productive day or I\u2019ve gone on a long hike or something. Where you\u2019ve earned it.', cite: 'Joshua' } }
       ]
     },
     {
@@ -744,14 +868,14 @@ body {
       color: '#b07328', colorSoft: '#f7f0e4',
       tagline: 'Group dynamics drive delivery decisions',
       stats: ['9 participants', 'Orders fortnightly to monthly', 'Friday evenings & weekends'],
-      introQuote: { text: 'Oh, it\u2019s like an unspoken ritual\u2026 We\u2019re not meant to call it a \u2018ritual,\u2019 but it definitely is.', cite: 'P001' },
+      introQuote: { text: 'Oh, it\u2019s like an unspoken ritual\u2026 We\u2019re not meant to call it a \u2018ritual,\u2019 but it definitely is.', cite: 'Lee' },
       stages: [
-        { emotion: 'Stress', score: 2, context: 'A friend mentions food. Another one pulls out their phone. The seed is planted. Now it\u2019s not about whether to order \u2014 it\u2019s about being part of the moment.', quote: { text: 'I sat next to my mate, and he was like, \u2018Oh, I just think I\u2019m going to order something.\u2019 And that\u2019s all, like, planted a seed in my head.', cite: 'P015' } },
-        { emotion: 'Stress', score: 2, context: 'Everyone has opinions. Different restaurants, different cuisines, different apps. Someone needs to take charge \u2014 but deciding for the group means absorbing the blame if it\u2019s wrong.', quote: { text: 'Something about takeaways at home even with friends don\u2019t feel as social. Whereas if you\u2019re out and about together it feels more social for some reason.', cite: 'P022' } },
-        { emotion: 'Connection', score: 5, context: 'One phone, one account, one subscription splitting the cost. The order goes in and for a moment, the group is aligned: this is their Friday night.', quote: { text: 'I ordered from my account. I have a membership, so I ordered from my account all together and then we split it in like three or four.', cite: 'P009' } },
+        { emotion: 'Stress', score: 2, context: 'A friend mentions food. Another one pulls out their phone. The seed is planted. Now it\u2019s not about whether to order \u2014 it\u2019s about being part of the moment.', quote: { text: 'I sat next to my mate, and he was like, \u2018Oh, I just think I\u2019m going to order something.\u2019 And that\u2019s all, like, planted a seed in my head.', cite: 'Evan' } },
+        { emotion: 'Stress', score: 2, context: 'Everyone has opinions. Different restaurants, different cuisines, different apps. Someone needs to take charge \u2014 but deciding for the group means absorbing the blame if it\u2019s wrong.', quote: null },
+        { emotion: 'Connection', score: 5, context: 'One phone, one account, one subscription splitting the cost. The order goes in and for a moment, the group is aligned: this is their Friday night.', quote: { text: 'I ordered from my account. I have a membership, so I ordered from my account all together and then we split it in like three or four.', cite: 'Aayush' } },
         { emotion: 'Neutral', score: 3, context: 'The group shifts to something else \u2014 a show, a conversation, a game. The food is coming. That\u2019s all that matters right now.', quote: null, limited: true },
-        { emotion: 'Guilt', score: 2, context: 'The food is eaten. The social energy fades. And then, quietly: was that too much? The guilt doesn\u2019t come from the food \u2014 it comes from eating it alone with your thoughts.', quote: { text: 'When you\u2019re going out with friends, it doesn\u2019t feel as bad getting a pizza. It feels more like a social thing rather than ordering it to your house and eating it on your own.', cite: 'P001' } },
-        { emotion: 'Comfort', score: 4, context: 'It\u2019s done. Plates stacked, containers binned. The evening settles into the kind of comfort that only comes from a shared routine. Next Friday, the same thing will happen.', quote: null }
+        { emotion: 'Guilt', score: 2, context: 'The food arrives. Everyone eats their own order. Even with friends around, the shared experience feels thinner than going out together \u2014 just individual meals in the same room. The social energy doesn\u2019t quite land.', quote: { text: 'Something about takeaways at home even with friends don\u2019t feel as social. Whereas if you\u2019re out and about together it feels more social for some reason.', cite: 'Katie' } },
+        { emotion: 'Comfort', score: 4, context: 'It\u2019s done. Plates stacked, containers binned. The evening settles into the kind of comfort that only comes from a shared routine. Next Friday, the same thing will happen.', quote: { text: 'When you\u2019re going out with friends, it doesn\u2019t feel as bad getting a pizza. It feels more like a social thing rather than ordering it to your house and eating it on your own.', cite: 'Lee' } }
       ]
     },
     {
@@ -759,14 +883,14 @@ body {
       color: '#3a7a55', colorSoft: '#e9f3ed',
       tagline: 'Careful financial management meets occasional treats',
       stats: ['6 participants', 'Orders monthly or less', 'Delivery reserved for special occasions'],
-      introQuote: { text: 'I\u2019m not really the kind of person that likes having subscriptions anyway because I just don\u2019t\u2026 like money coming out.', cite: 'P023' },
+      introQuote: { text: 'I\u2019m not really the kind of person that likes having subscriptions anyway because I just don\u2019t\u2026 like money coming out.', cite: 'Alexandra' },
       stages: [
-        { emotion: 'Stress', score: 2, context: 'The internal negotiation begins. Has it been long enough since the last order? Is there food in the fridge? Is this a genuine craving or just convenience? Three conditions must be met before permission is granted.', quote: { text: 'Justified is probably just when it\u2019s been a while, if it\u2019s something I\u2019ve been feeling like having, and if it\u2019s time to do another grocery shop.', cite: 'P005' } },
+        { emotion: 'Stress', score: 2, context: 'The internal negotiation begins. Has it been long enough since the last order? Is there food in the fridge? Is this a genuine craving or just convenience? Three conditions must be met before permission is granted.', quote: { text: 'Justified is probably just when it\u2019s been a while, if it\u2019s something I\u2019ve been feeling like having, and if it\u2019s time to do another grocery shop.', cite: 'Chika' } },
         { emotion: 'Comfort', score: 4, context: 'When the answer is yes, there\u2019s relief. The guilt of deciding to order is replaced by the comfort of choosing well \u2014 finding the right deal, the right restaurant, the right amount. The hard part is over.', quote: null },
         { emotion: 'Frustration', score: 2, context: 'Then the price hits. Delivery fee. Service fee. The total climbs past the comfortable threshold. Subscriptions that promise savings feel like another cost to justify.', quote: null },
         { emotion: 'Neutral', score: 3, context: 'The emotional weight was in the decision. Now there\u2019s just time. The waiting is empty \u2014 not anxious, not excited, just neutral.', quote: null, limited: true },
         { emotion: 'Indifference', score: 3, context: 'The food is fine. It\u2019s eaten without ceremony. For the Budget Balancer, the drama was in the permission to order, not in the eating. This stage is emotionally flat \u2014 and that flatness is the insight.', quote: null },
-        { emotion: 'Comfort', score: 4, context: 'It\u2019s over. The money is spent. And in the quiet aftermath, there\u2019s a gentle comfort: it was a while since the last one. It was justified.', quote: { text: 'I\u2019ve had quite a busy or stressful week as, like, a little reward.', cite: 'P028' } }
+        { emotion: 'Comfort', score: 4, context: 'It\u2019s over. The money is spent. And in the quiet aftermath, there\u2019s a gentle comfort: it was a while since the last one. It was justified.', quote: { text: 'I\u2019ve had quite a busy or stressful week as, like, a little reward.', cite: 'Anya' } }
       ]
     },
     {
@@ -774,23 +898,23 @@ body {
       color: '#6454a4', colorSoft: '#efedf7',
       tagline: 'Delivery as essential life infrastructure',
       stats: ['8 participants', 'Orders multiple times per week', 'Up to \u00a3100/week on food delivery'],
-      introQuote: { text: 'Usually, when I\u2019m not at home, I\u2019m always ordering off Just Eat, Deliveroo, or UberEats, ordering to the friend\u2019s house. About pretty much five times a week.', cite: 'P006' },
+      introQuote: { text: 'Usually, when I\u2019m not at home, I\u2019m always ordering off Just Eat, Deliveroo, or UberEats, ordering to the friend\u2019s house. About pretty much five times a week.', cite: 'Adam' },
       stages: [
-        { emotion: 'Frustration', score: 2, context: 'The cereal is gone. The milk is out. The shop is a twenty-minute walk in February rain. The frustration isn\u2019t about food \u2014 it\u2019s about everything else getting in the way of eating.', quote: { text: 'I started noticing that we\u2019re running out of cereal, eggs, milk, porridge\u2026 I didn\u2019t feel like going down to the shop\u2026 and I didn\u2019t have the time.', cite: 'P006' } },
-        { emotion: 'Comfort', score: 4, context: 'The decision is barely a decision. The app is already open. The regular order is right there. The only real choice is which platform has the better deal tonight.', quote: { text: 'I have one main flatmate that I usually coordinate with, like when our lectures are, when we\u2019ll go to the gym, and so that we try to eat around the same time.', cite: 'P036' } },
+        { emotion: 'Frustration', score: 2, context: 'The cereal is gone. The milk is out. The shop is a twenty-minute walk in February rain. The frustration isn\u2019t about food \u2014 it\u2019s about everything else getting in the way of eating.', quote: { text: 'I started noticing that we\u2019re running out of cereal, eggs, milk, porridge\u2026 I didn\u2019t feel like going down to the shop\u2026 and I didn\u2019t have the time.', cite: 'Adam' } },
+        { emotion: 'Comfort', score: 4, context: 'The decision is barely a decision. The app is already open. The regular order is right there. The only real choice is which platform has the better deal tonight.', quote: { text: 'I have one main flatmate that I usually coordinate with, like when our lectures are, when we\u2019ll go to the gym, and so that we try to eat around the same time.', cite: 'Maya' } },
         { emotion: 'Connection', score: 5, context: 'The order is placed \u2014 from a friend\u2019s house, between lectures, coordinated with a flatmate. Delivery isn\u2019t an event. It\u2019s infrastructure. The positive feeling comes from the routine itself working smoothly.', quote: null },
-        { emotion: 'Frustration', score: 2, context: 'The driver can\u2019t find the college entrance. The pin drop is wrong. The food sits at a gate while a phone call sorts out what a map couldn\u2019t.', quote: { text: 'It\u2019s kind of difficult getting the deliveries actually where you want them. Maybe it\u2019s just the setup here at Oxford and the different colleges.', cite: 'P034' } },
-        { emotion: 'Comfort', score: 4, context: 'Hot food, couch, winter evening. For a moment, everything makes sense. The convenience was worth it.', quote: { text: 'Definitely winter. I think that\u2019s probably what started it\u2026 just not wanting to leave the house as much.', cite: 'P029' } },
-        { emotion: 'Stress', score: 2, context: 'Then the bank notification arrives. Ninety pounds this week. Maybe more. The spending is visible, the pattern undeniable. Tomorrow it\u2019ll happen again.', quote: { text: 'I\u2019d say about\u2026 I don\u2019t want to lie\u2026 about 90 to 100 quid just alone on food, maybe even more.', cite: 'P006' } }
+        { emotion: 'Frustration', score: 2, context: 'The driver can\u2019t find the college entrance. The pin drop is wrong. The food sits at a gate while a phone call sorts out what a map couldn\u2019t.', quote: { text: 'It\u2019s kind of difficult getting the deliveries actually where you want them. Maybe it\u2019s just the setup here at Oxford and the different colleges.', cite: 'Jade' } },
+        { emotion: 'Comfort', score: 4, context: 'Hot food, couch, winter evening. For a moment, everything makes sense. The convenience was worth it.', quote: { text: 'Definitely winter. I think that\u2019s probably what started it\u2026 just not wanting to leave the house as much.', cite: 'Samuel' } },
+        { emotion: 'Stress', score: 2, context: 'Then the bank notification arrives. The total is higher than expected. The spending is visible, the pattern hard to ignore. The convenience was worth it in the moment, but the numbers are adding up.', quote: { text: 'I think I\u2019d have to go like full Marie Kondo and just\u2026 cut everything off with how much I\u2019m spending.', cite: 'Samuel' } }
       ]
     }
   ];
 
   var COMPARISON = [
-    { persona: 'The Pragmatic Optimizer', emotion: 'Excitement', positive: true, score: '5 / 5', quote: 'It\u2019s like a reward. You\u2019ve earned it.', cite: 'P007', color: '#1d7775' },
-    { persona: 'The Social Orderer', emotion: 'Connection', positive: true, score: '5 / 5', quote: 'I ordered from my account all together and then we split it.', cite: 'P009', color: '#b07328' },
-    { persona: 'The Budget Balancer', emotion: 'Frustration', positive: false, score: '2 / 5', quote: 'I just don\u2019t like money coming out.', cite: 'P023', color: '#3a7a55', outlier: true },
-    { persona: 'The Convenience Dependent', emotion: 'Connection', positive: true, score: '5 / 5', quote: 'About pretty much five times a week.', cite: 'P006', color: '#6454a4' }
+    { persona: 'The Pragmatic Optimizer', emotion: 'Excitement', positive: true, score: '5 / 5', quote: 'It\u2019s like a reward. You\u2019ve earned it.', cite: 'Joshua', color: '#1d7775' },
+    { persona: 'The Social Orderer', emotion: 'Connection', positive: true, score: '5 / 5', quote: 'I ordered from my account all together and then we split it.', cite: 'Aayush', color: '#b07328' },
+    { persona: 'The Budget Balancer', emotion: 'Frustration', positive: false, score: '2 / 5', quote: 'I just don\u2019t like money coming out.', cite: 'Alexandra', color: '#3a7a55', outlier: true },
+    { persona: 'The Convenience Dependent', emotion: 'Connection', positive: true, score: '5 / 5', quote: 'About pretty much five times a week.', cite: 'Adam', color: '#6454a4' }
   ];
 
   // ---- Build persona intro slides ----
@@ -1071,6 +1195,8 @@ body {
   function prev() { showScreen(currentIdx - 1); }
 
   document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && navOpen) { toggleNav(false); return; }
+    if (navOpen) return;
     if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') { e.preventDefault(); next(); }
     if (e.key === 'ArrowLeft' || e.key === 'Backspace') { e.preventDefault(); prev(); }
     if (e.key === 'Home') { e.preventDefault(); showScreen(0); }
@@ -1078,13 +1204,83 @@ body {
   });
 
   document.addEventListener('click', function(e) {
-    if (e.target.closest('button') || e.target.closest('a') || e.target.closest('svg')) return;
+    if (e.target.closest('button') || e.target.closest('a') || e.target.closest('svg') || e.target.closest('.nav-panel') || e.target.closest('.nav-overlay')) return;
     var w = window.innerWidth;
     if (e.clientX > w * 0.65) next();
     else if (e.clientX < w * 0.35) prev();
   });
 
   setTimeout(function() { hintEl.classList.add('hidden'); }, 4000);
+
+  // ---- Jump nav ----
+  var navBtn = document.getElementById('navBtn');
+  var navOverlay = document.getElementById('navOverlay');
+  var navPanel = document.getElementById('navPanel');
+  var navOpen = false;
+
+  function toggleNav(force) {
+    navOpen = typeof force === 'boolean' ? force : !navOpen;
+    navBtn.classList.toggle('open', navOpen);
+    navOverlay.classList.toggle('open', navOpen);
+    navPanel.classList.toggle('open', navOpen);
+  }
+
+  navBtn.addEventListener('click', function(e) { e.stopPropagation(); toggleNav(); });
+  navOverlay.addEventListener('click', function() { toggleNav(false); });
+
+  function jumpTo(screenIdx) {
+    toggleNav(false);
+    showScreen(screenIdx);
+  }
+
+  function buildNav() {
+    var html = '';
+    html += '<div class="nav-section-label">Presentation</div>';
+    html += '<button class="nav-item" data-nav="0"><span class="nav-dot" style="background: var(--text-light)"></span>Title</button>';
+    html += '<button class="nav-item" data-nav="1"><span class="nav-dot" style="background: var(--text-light)"></span>Overview</button>';
+
+    var screenOffset = 2;
+    PERSONAS.forEach(function(p) {
+      html += '<div class="nav-section-label">' + p.shortName + '</div>';
+      html += '<button class="nav-item" data-nav="' + screenOffset + '"><span class="nav-dot" style="background: ' + p.color + '"></span>' + p.name + '</button>';
+      html += '<button class="nav-item" data-nav="' + (screenOffset + 1) + '" style="padding-left: 1.55rem; font-size: 0.72rem; color: var(--text-mid)">Emotion arc</button>';
+      html += '<div class="nav-stage-list">';
+      STAGES.forEach(function(s, si) {
+        html += '<button class="nav-stage-item" data-nav="' + (screenOffset + 2 + si) + '">' + STAGE_NAMES[si] + '</button>';
+      });
+      html += '</div>';
+      screenOffset += 8;
+    });
+
+    html += '<div class="nav-section-label">Wrap-up</div>';
+    html += '<button class="nav-item" data-nav="' + (totalSteps - 2) + '"><span class="nav-dot" style="background: var(--text-light)"></span>Comparison</button>';
+    html += '<button class="nav-item" data-nav="' + (totalSteps - 1) + '"><span class="nav-dot" style="background: var(--text-light)"></span>Closing</button>';
+
+    navPanel.innerHTML = html;
+    navPanel.querySelectorAll('[data-nav]').forEach(function(btn) {
+      btn.addEventListener('click', function() { jumpTo(parseInt(btn.getAttribute('data-nav'))); });
+    });
+  }
+  buildNav();
+
+  function updateNavActive() {
+    navPanel.querySelectorAll('[data-nav]').forEach(function(btn) {
+      btn.classList.toggle('active', parseInt(btn.getAttribute('data-nav')) === currentIdx);
+    });
+  }
+
+  var _origShowScreen = showScreen;
+  showScreen = function(idx) {
+    _origShowScreen(idx);
+    updateNavActive();
+  };
+
+  document.addEventListener('click', function(e) {
+    if (navOpen && !e.target.closest('.nav-panel') && !e.target.closest('.nav-btn')) {
+      toggleNav(false);
+    }
+  });
+
   showScreen(0);
 })();
 </script>
